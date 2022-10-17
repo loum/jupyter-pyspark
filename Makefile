@@ -5,8 +5,6 @@ MAKESTER__REPO_NAME := loum
 SPARK_VERSION := 3.3.0
 JUPYTER_VERSION := 6.5.1
 
-MAKESTER__IMAGE_TARGET_TAG := test
-
 # Tagging convention used: <jupyter-version>-<spark-version>-<image-release-number>
 MAKESTER__VERSION := $(JUPYTER_VERSION)-$(SPARK_VERSION)
 MAKESTER__RELEASE_NUMBER := 1
