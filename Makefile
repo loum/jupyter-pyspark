@@ -1,4 +1,9 @@
+.SILENT:
 .DEFAULT_GOAL := help
+
+MAKESTER__CONTAINER_NAME := jupyter-pyspark
+
+include makester/makefiles/makester.mk
 
 MAKESTER__REPO_NAME := loum
 
@@ -9,24 +14,29 @@ JUPYTER_VERSION := 6.5.1
 MAKESTER__VERSION := $(JUPYTER_VERSION)-$(SPARK_VERSION)
 MAKESTER__RELEASE_NUMBER := 1
 
-MAKESTER__CONTAINER_NAME := jupyter-pyspark
-
-include makester/makefiles/makester.mk
-include makester/makefiles/docker.mk
-include makester/makefiles/python-venv.mk
+ifeq ($(MAKESTER__ARCH), arm64)
+DOCKER_PLATFORM := linux/arm64/v8
+else
+DOCKER_PLATFORM := linux/amd64
+endif
 
 SPARK_BASE_IMAGE := loum/pyjdk:python3.10-openjdk11
 
+DOCKER_BUILDX_BUILDER := multiarch
 JUPYTER_PORT ?= 8889
-MAKESTER__BUILD_COMMAND = $(DOCKER) build --rm\
- --no-cache\
+MAKESTER__BUILD_COMMAND = --rm --no-cache\
+ --builder $(DOCKER_BUILDX_BUILDER)\
+ --platform $(DOCKER_PLATFORM)\
  --build-arg SPARK_BASE_IMAGE=$(SPARK_BASE_IMAGE)\
  --build-arg SPARK_VERSION=$(SPARK_VERSION)\
  --build-arg JUPYTER_VERSION=$(JUPYTER_VERSION)\
  --build-arg JUPYTER_PORT=$(JUPYTER_PORT)\
- -t $(MAKESTER__IMAGE_TAG_ALIAS) .
+ --load\
+ --tag $(MAKESTER__IMAGE_TAG_ALIAS) .
 
-MAKESTER__RUN_COMMAND := $(DOCKER) run --rm -d\
+MAKESTER__RUN_COMMAND := $(MAKESTER__DOCKER) run\
+ --rm -d\
+ --platform $(DOCKER_PLATFORM)\
  --name $(MAKESTER__CONTAINER_NAME)\
  --hostname $(MAKESTER__CONTAINER_NAME)\
  --env JUPYTER_PORT=$(JUPYTER_PORT)\
@@ -35,27 +45,27 @@ MAKESTER__RUN_COMMAND := $(DOCKER) run --rm -d\
  --publish $(JUPYTER_PORT):$(JUPYTER_PORT)\
  $(MAKESTER__SERVICE_NAME):$(HASH)
 
-init: clear-env makester-requirements
+init: py-venv-clear py-venv-init py-install-makester
 
 backoff:
-	@$(PYTHON) makester/scripts/backoff -d "Web UI for Jupyter" -p $(JUPYTER_PORT) localhost
+	@venv/bin/makester backoff localhost $(JUPYTER_PORT) --detail "Web UI for Jupyter"
 
-controlled-run: run backoff jupyter-server
+controlled-run: container-run backoff jupyter-server
 
 jupyter-server:
 	$(info ### enter the Jupyter Notebook server URL into your browser:)
-	@$(DOCKER) exec -ti $(MAKESTER__CONTAINER_NAME) bash -c "jupyter notebook list"
+	@$(MAKESTER__DOCKER) exec -ti $(MAKESTER__CONTAINER_NAME) bash -c "jupyter notebook list"
 
-spark-version: backoff
-	@$(DOCKER) exec $(MAKESTER__CONTAINER_NAME) bash -c ".local/bin/spark-submit --version" || true
+spark-version:
+	@$(MAKESTER__DOCKER) exec -ti $(MAKESTER__CONTAINER_NAME) bash -c ".local/bin/spark-submit --version" || true
 
-pyspark: backoff
-	@$(DOCKER) exec -ti $(MAKESTER__CONTAINER_NAME) bash -c ".local/bin/pyspark"
+pyspark:
+	@$(MAKESTER__DOCKER) exec -ti $(MAKESTER__CONTAINER_NAME) bash -c ".local/bin/pyspark"
 
-spark: backoff
-	@$(DOCKER) exec -ti $(MAKESTER__CONTAINER_NAME) bash -c ".local/bin/spark-shell"
+spark:
+	@$(MAKESTER__DOCKER) exec -ti $(MAKESTER__CONTAINER_NAME) bash -c ".local/bin/spark-shell"
 
-help: makester-help docker-help python-venv-help
+help: makester-help
 	@echo "(Makefile)\n\
   controlled-run       Start and wait until all container services stabilise\n\
   spark-version        Spark version in running container $(MAKESTER__CONTAINER_NAME)\"\n\
