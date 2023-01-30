@@ -1,15 +1,15 @@
 #!/bin/sh
 
 # Start the Jupyter server.
-PYSPARK_DRIVER_PYTHON=/home/dummy/.local/bin/jupyter\
- SPARK_HOME=/home/dummy/.local/lib/python3.10/site-packages/pyspark/\
+PYSPARK_DRIVER_PYTHON=/home/user/.local/bin/jupyter\
+ SPARK_HOME=/home/user/.local/lib/python3.10/site-packages/pyspark/\
  PYTHONPATH=$SPARK_HOME/python:$PYTHONPATH\
  PYSPARK_DRIVER_PYTHON_OPTS="notebook\
  --no-browser\
  --ip 0.0.0.0\
- --notebook-dir=/home/dummy/notebooks/\
+ --notebook-dir=/home/user/notebooks/\
  --port=$JUPYTER_PORT"\
- /home/dummy/.local/bin/pyspark
+ /home/user/.local/bin/pyspark --driver-memory="${DRIVER_MEMORY:-2g}"
 
 # Block until we signal exit.
 trap 'exit 0' TERM

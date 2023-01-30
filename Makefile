@@ -1,11 +1,10 @@
 .SILENT:
 .DEFAULT_GOAL := help
 
+MAKESTER__REPO_NAME := loum
 MAKESTER__CONTAINER_NAME := jupyter-pyspark
 
 include makester/makefiles/makester.mk
-
-MAKESTER__REPO_NAME := loum
 
 SPARK_VERSION := 3.3.1
 JUPYTER_VERSION := 6.5.2
@@ -14,19 +13,10 @@ JUPYTER_VERSION := 6.5.2
 MAKESTER__VERSION := $(JUPYTER_VERSION)-$(SPARK_VERSION)
 MAKESTER__RELEASE_NUMBER := 1
 
-ifeq ($(MAKESTER__ARCH), arm64)
-DOCKER_PLATFORM := linux/arm64/v8
-else
-DOCKER_PLATFORM := linux/amd64
-endif
-
 SPARK_BASE_IMAGE := loum/pyjdk:python3.10-openjdk11
 
-DOCKER_BUILDX_BUILDER := multiarch
 JUPYTER_PORT ?= 8889
-MAKESTER__BUILD_COMMAND = --rm --no-cache\
- --builder $(DOCKER_BUILDX_BUILDER)\
- --platform $(DOCKER_PLATFORM)\
+MAKESTER__BUILD_COMMAND := --rm --no-cache\
  --build-arg SPARK_BASE_IMAGE=$(SPARK_BASE_IMAGE)\
  --build-arg SPARK_VERSION=$(SPARK_VERSION)\
  --build-arg JUPYTER_VERSION=$(JUPYTER_VERSION)\
@@ -34,13 +24,14 @@ MAKESTER__BUILD_COMMAND = --rm --no-cache\
  --load\
  --tag $(MAKESTER__IMAGE_TAG_ALIAS) .
 
+DRIVER_MEMORY ?= 2g
 MAKESTER__RUN_COMMAND := $(MAKESTER__DOCKER) run\
  --rm -d\
- --platform $(DOCKER_PLATFORM)\
  --name $(MAKESTER__CONTAINER_NAME)\
  --hostname $(MAKESTER__CONTAINER_NAME)\
  --env JUPYTER_PORT=$(JUPYTER_PORT)\
- --volume $(PWD)/notebooks:/home/dummy/notebooks\
+ --env DRIVER_MEMORY=$(DRIVER_MEMORY)\
+ --volume $(PWD)/notebooks:/home/user/notebooks\
  --publish 18080:18080\
  --publish $(JUPYTER_PORT):$(JUPYTER_PORT)\
  $(MAKESTER__SERVICE_NAME):$(HASH)
@@ -68,6 +59,6 @@ spark:
 help: makester-help
 	@echo "(Makefile)\n\
   controlled-run       Start and wait until all container services stabilise\n\
-  spark-version        Spark version in running container $(MAKESTER__CONTAINER_NAME)\"\n\
+  spark-version        Spark version in running container \"$(MAKESTER__CONTAINER_NAME)\"\n\
   pyspark              Start the pyspark REPL\n\
   spark                Start the spark REPL\n"

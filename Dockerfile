@@ -2,28 +2,16 @@
 
 ARG SPARK_BASE_IMAGE
 
-ARG SPARK_BASE_IMAGE
-FROM $SPARK_BASE_IMAGE as main
-
-# Run everything as JUPYTER_USER
-ARG JUPYTER_USER=dummy
-ARG JUPYTER_GROUP=dummy
-ARG JUPYTER_HOME=/home/dummy
-
-COPY scripts/jupyter-bootstrap.sh /jupyter-bootstrap.sh
-
-WORKDIR $JUPYTER_HOME
+FROM $SPARK_BASE_IMAGE AS builder
 
 USER root
-WORKDIR $JUPYTER_HOME/.local
-RUN chown -R $JUPYTER_USER:$JUPYTER_GROUP $JUPYTER_HOME/.local
 
-ARG JUPYTER_PORT=8889
-EXPOSE $JUPYTER_PORT
+RUN apt-get update && apt-get install -y --no-install-recommends\
+ gcc python3-dev &&\
+ apt-get autoremove -yqq --purge &&\
+ rm -rf /var/lib/apt/lists/*
 
-WORKDIR $JUPYTER_HOME
-USER $JUPYTER_USER
-ENV PATH "$PATH:$JUPYTER_HOME/.local/bin"
+USER user
 
 ARG SPARK_VERSION
 ARG JUPYTER_VERSION
@@ -39,5 +27,30 @@ RUN python -m pip install\
      \( -type f -a \( -name '*.pyc' -o -name '*.pyo' \) \) \
    \) -exec rm -rf '{}' +;
 
+### builder layer end
+
+ARG SPARK_BASE_IMAGE
+
+FROM $SPARK_BASE_IMAGE AS main
+
+# Run everything as JUPYTER_USER
+ARG JUPYTER_USER=user
+ARG JUPYTER_GROUP=user
+ARG JUPYTER_HOME=/home/user
+
+COPY scripts/jupyter-bootstrap.sh /jupyter-bootstrap.sh
+
+WORKDIR $JUPYTER_HOME
+
+WORKDIR $JUPYTER_HOME/.local
+COPY --from=builder --chown=$JUPYTER_USER:$JUPYTER_GROUP /home/user/.local $JUPYTER_HOME/.local/
+
+ARG JUPYTER_PORT=8889
+EXPOSE $JUPYTER_PORT
+
+WORKDIR $JUPYTER_HOME
+USER $JUPYTER_USER
+ENV PATH "$PATH:$JUPYTER_HOME/.local/bin"
+
 ENTRYPOINT [ "/jupyter-bootstrap.sh" ]
-CMD = []
+CMD []
