@@ -1,0 +1,32 @@
+name: Jupyter PySpark CI
+run-name: ${{ github.actor }} ${{ github.event_name }} event Jupyter PySpark CI 🚀
+on: push
+permissions:
+  contents: write
+
+jobs:
+  pre-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Check if the VERSION file has changed
+        id: changed_version_file
+        uses: tj-actions/changed-files@v35
+        with:
+          files: VERSION
+      - name: Read VERSION file
+        if: steps.changed_version_file.outputs.any_changed == 'true'
+        id: get_version
+        run: echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+      - name: Create pre-release
+        if: steps.changed_version_file.outputs.any_changed == 'true'
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          title: ${{ steps.get_version.outputs.version }}
+          automatic_release_tag: ${{ steps.get_version.outputs.VERSION }}
+          prerelease: true

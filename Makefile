@@ -21,7 +21,6 @@ MAKESTER__BUILD_COMMAND := --rm --no-cache\
  --build-arg SPARK_VERSION=$(SPARK_VERSION)\
  --build-arg JUPYTER_VERSION=$(JUPYTER_VERSION)\
  --build-arg JUPYTER_PORT=$(JUPYTER_PORT)\
- --load\
  --tag $(MAKESTER__IMAGE_TAG_ALIAS) .
 
 DRIVER_MEMORY ?= 2g
@@ -36,7 +35,29 @@ MAKESTER__RUN_COMMAND := $(MAKESTER__DOCKER) run\
  --publish $(JUPYTER_PORT):$(JUPYTER_PORT)\
  $(MAKESTER__SERVICE_NAME):$(HASH)
 
+#
+# Local Makefile targets.
+#
+# Initialise the development environment.
 init: py-venv-clear py-venv-init py-install-makester
+
+image-pull-into-docker:
+	$(info ### Pulling local registry image $(MAKESTER__SERVICE_NAME):$(HASH) into docker)
+	$(MAKESTER__DOCKER) pull $(MAKESTER__SERVICE_NAME):$(HASH)
+
+image-tag-in-docker: image-pull-into-docker
+	$(info ### Tagging local registry image $(MAKESTER__SERVICE_NAME):$(HASH) for docker)
+	$(MAKESTER__DOCKER) tag $(MAKESTER__SERVICE_NAME):$(HASH) $(MAKESTER__STATIC_SERVICE_NAME):$(HASH)
+
+image-transfer: image-tag-in-docker
+	$(info ### Deleting pulled local registry image $(MAKESTER__SERVICE_NAME):$(HASH))
+	$(MAKESTER__DOCKER) rmi $(MAKESTER__SERVICE_NAME):$(HASH)
+
+multi-arch-build: image-registry-start image-buildx-builder
+	$(info ### Starting multi-arch builds ...)
+	$(MAKE) MAKESTER__DOCKER_PLATFORM=linux/arm64,linux/amd64 image-buildx
+	$(MAKE) image-transfer
+	$(MAKE) image-registry-stop
 
 backoff:
 	@venv/bin/makester backoff localhost $(JUPYTER_PORT) --detail "Web UI for Jupyter"
@@ -56,9 +77,19 @@ pyspark:
 spark:
 	@$(MAKESTER__DOCKER) exec -ti $(MAKESTER__CONTAINER_NAME) bash -c ".local/bin/spark-shell"
 
+version: MAKESTER__VERSION_FILE := $(PWD)/VERSION
+version: _RELEASE := $(MAKESTER__VERSION)-$(MAKESTER__RELEASE_NUMBER)
+version:
+	$(info ### Setting current version to $(_RELEASE) in $(MAKESTER__VERSION_FILE))
+	$(shell which echo) $(_RELEASE) > $(MAKESTER__VERSION_FILE)
+
 help: makester-help
 	@echo "(Makefile)\n\
   controlled-run       Start and wait until all container services stabilise\n\
+  multi-arch-build     Convenience target for multi-arch container image builds\n\
   spark-version        Spark version in running container \"$(MAKESTER__CONTAINER_NAME)\"\n\
   pyspark              Start the pyspark REPL\n\
-  spark                Start the spark REPL\n"
+  spark                Start the spark REPL\n\
+  version              Write out release version\n"
+
+.PHONY: version
