@@ -6,7 +6,7 @@ MAKESTER__CONTAINER_NAME := jupyter-pyspark
 
 include makester/makefiles/makester.mk
 
-SPARK_VERSION := 3.3.1
+SPARK_VERSION := 3.3.2
 JUPYTER_VERSION := 6.5.2
 
 # Tagging convention used: <jupyter-version>-<spark-version>-<image-release-number>
@@ -40,6 +40,10 @@ MAKESTER__RUN_COMMAND := $(MAKESTER__DOCKER) run\
 #
 # Initialise the development environment.
 init: py-venv-clear py-venv-init py-install-makester
+
+image-bulk-build:
+	$(info ### Container image bulk build ...)
+	scripts/bulkbuild.sh
 
 image-pull-into-docker:
 	$(info ### Pulling local registry image $(MAKESTER__SERVICE_NAME):$(HASH) into docker)
@@ -85,6 +89,8 @@ version:
 
 help: makester-help
 	@echo "(Makefile)\n\
+  init                 Build the local development environment\n\
+  image-bulk-build     Build all multi-platform container images\n\
   controlled-run       Start and wait until all container services stabilise\n\
   multi-arch-build     Convenience target for multi-arch container image builds\n\
   spark-version        Spark version in running container \"$(MAKESTER__CONTAINER_NAME)\"\n\
