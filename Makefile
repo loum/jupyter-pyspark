@@ -6,14 +6,14 @@ MAKESTER__CONTAINER_NAME := jupyter-pyspark
 
 include makester/makefiles/makester.mk
 
-SPARK_VERSION := 3.3.2
-JUPYTER_VERSION := 6.5.2
+SPARK_VERSION := 3.4.1
+JUPYTER_VERSION := 7.0.0
 
 # Tagging convention used: <jupyter-version>-<spark-version>-<image-release-number>
 MAKESTER__VERSION := $(JUPYTER_VERSION)-$(SPARK_VERSION)
 MAKESTER__RELEASE_NUMBER := 1
 
-SPARK_BASE_IMAGE := loum/pyjdk:python3.10-openjdk11
+SPARK_BASE_IMAGE := loum/pyjdk:python3.11-openjdk11
 
 JUPYTER_PORT ?= 8889
 MAKESTER__BUILD_COMMAND := --rm --no-cache\
