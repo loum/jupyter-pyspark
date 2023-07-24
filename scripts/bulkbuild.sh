@@ -1,11 +1,11 @@
 #!/bin/sh
 
-LATEST_SPARK_VERSION=3.3.2
-LATEST_JUPYTER_VERSION=6.5.2
+LATEST_SPARK_VERSION=3.4.1
+LATEST_JUPYTER_VERSION=7.0.0
 
-for SPARK_VERSION in 3.3.1 3.3.2
+for SPARK_VERSION in 3.4.1
 do
-    for JUPYTER_VERSION in 6.5.1 6.5.2
+    for JUPYTER_VERSION in 7.0.0
     do
         CMD="docker buildx build --platform linux/arm64,linux/amd64
  --push --rm --no-cache
