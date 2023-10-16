@@ -1,5 +1,11 @@
+# MkDocs static content
+docs/site
+
 # Jupyter
 .ipynb_checkpoints
+
+# Makester
+.makester
 
 *.py[cod]
 *.swp
@@ -21,6 +27,7 @@ develop-eggs
 .installed.cfg
 lib
 lib64
+.wheelhouse
 
 # Installer logs
 pip-log.txt
@@ -39,10 +46,11 @@ coverage.xml
 .project
 .pydevproject
 
+# setup.py
+build
+
 # Local virtual environment
-venv
-2env
-3env
+[v23]env
 
 # py.test
 .cache
@@ -50,6 +58,7 @@ venv
 
 # Vagrant
 .vagrant
+*console.log
 
 # SonarQube
 .scannerwork
@@ -72,3 +81,9 @@ metastore_db
 
 # Kafka Connect dynamically created connector configs
 *s3.properties.json
+
+# Visual Studio Code
+.vscode
+
+# macOS
+.DS_Store

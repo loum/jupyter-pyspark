@@ -1,11 +1,8 @@
 #!/bin/sh
 
-LATEST_SPARK_VERSION=3.4.1
-LATEST_JUPYTER_VERSION=7.0.0
-
-for SPARK_VERSION in 3.4.1
+for _SPARK_VERSION in 3.5.0
 do
-    for JUPYTER_VERSION in 7.0.0
+    for _JUPYTER_VERSION in 7.0.5
     do
         CMD="docker buildx build --platform linux/arm64,linux/amd64
  --push --rm --no-cache
@@ -14,7 +11,7 @@ do
  --build-arg JUPYTER_VERSION=$JUPYTER_VERSION
  --build-arg JUPYTER_PORT=8889"
 
-        if [ "$SPARK_VERSION" = "$LATEST_SPARK_VERSION" ] && [ "$JUPYTER_VERSION" = "$LATEST_JUPYTER_VERSION" ]
+        if [ "$_SPARK_VERSION" = "$SPARK_VERSION" ] && [ "$_JUPYTER_VERSION" = "$JUPYTER_VERSION" ]
         then
             CMD="$CMD --tag loum/jupyter-pyspark:latest"
         fi
