@@ -2,7 +2,7 @@
 
 # Start the Jupyter server.
 PYSPARK_DRIVER_PYTHON=/home/user/.local/bin/jupyter\
- SPARK_HOME=/home/user/.local/lib/python3.10/site-packages/pyspark/\
+ SPARK_HOME=/home/user/.local/lib/python3.11/site-packages/pyspark/\
  PYTHONPATH=$SPARK_HOME/python:$PYTHONPATH\
  PYSPARK_DRIVER_PYTHON_OPTS="notebook\
  --no-browser\

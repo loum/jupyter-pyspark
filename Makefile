@@ -6,8 +6,8 @@ MAKESTER__CONTAINER_NAME := jupyter-pyspark
 
 include makester/makefiles/makester.mk
 
-SPARK_VERSION := 3.4.1
-JUPYTER_VERSION := 7.0.0
+export SPARK_VERSION := 3.5.0
+export JUPYTER_VERSION := 7.0.5
 
 # Tagging convention used: <jupyter-version>-<spark-version>-<image-release-number>
 MAKESTER__VERSION := $(JUPYTER_VERSION)-$(SPARK_VERSION)
@@ -27,7 +27,7 @@ DRIVER_MEMORY ?= 2g
 MAKESTER__RUN_COMMAND := $(MAKESTER__DOCKER) run\
  --rm -d\
  --name $(MAKESTER__CONTAINER_NAME)\
- --hostname $(MAKESTER__CONTAINER_NAME)\
+ --hostname localhost\
  --env JUPYTER_PORT=$(JUPYTER_PORT)\
  --env DRIVER_MEMORY=$(DRIVER_MEMORY)\
  --volume $(PWD)/notebooks:/home/user/notebooks\
@@ -64,7 +64,7 @@ multi-arch-build: image-registry-start image-buildx-builder
 	$(MAKE) image-registry-stop
 
 backoff:
-	@venv/bin/makester backoff localhost $(JUPYTER_PORT) --detail "Web UI for Jupyter"
+	@venv/bin/makester backoff $(MAKESTER__LOCAL_IP) $(JUPYTER_PORT) --detail "Web UI for Jupyter"
 
 controlled-run: container-run backoff jupyter-server
 
