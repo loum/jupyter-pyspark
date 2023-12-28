@@ -3,11 +3,15 @@
 
 MAKESTER__REPO_NAME := loum
 MAKESTER__CONTAINER_NAME := jupyter-pyspark
+MAKESTER__INCLUDES=py docker
 
 include makester/makefiles/makester.mk
 
+#
+# Makester overrides.
+#
 export SPARK_VERSION := 3.5.0
-export JUPYTER_VERSION := 7.0.5
+export JUPYTER_VERSION := 7.0.6
 
 # Tagging convention used: <jupyter-version>-<spark-version>-<image-release-number>
 MAKESTER__VERSION := $(JUPYTER_VERSION)-$(SPARK_VERSION)
@@ -89,13 +93,13 @@ version:
 
 help: makester-help
 	@echo "(Makefile)\n\
-  init                 Build the local development environment\n\
-  image-bulk-build     Build all multi-platform container images\n\
   controlled-run       Start and wait until all container services stabilise\n\
+  image-bulk-build     Build all multi-platform container images\n\
+  init                 Build the local development environment\n\
   multi-arch-build     Convenience target for multi-arch container image builds\n\
-  spark-version        Spark version in running container \"$(MAKESTER__CONTAINER_NAME)\"\n\
   pyspark              Start the pyspark REPL\n\
   spark                Start the spark REPL\n\
+  spark-version        Spark version in running container \"$(MAKESTER__CONTAINER_NAME)\"\n\
   version              Write out release version\n"
 
 .PHONY: version
