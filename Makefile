@@ -10,8 +10,8 @@ include makester/makefiles/makester.mk
 #
 # Makester overrides.
 #
-export SPARK_VERSION := 3.5.0
-export JUPYTER_VERSION := 7.0.6
+export SPARK_VERSION := 3.5.1
+export JUPYTER_VERSION := 7.1.2
 
 # Tagging convention used: <jupyter-version>-<spark-version>-<image-release-number>
 MAKESTER__VERSION := $(JUPYTER_VERSION)-$(SPARK_VERSION)
