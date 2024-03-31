@@ -1,9 +1,9 @@
 .SILENT:
 .DEFAULT_GOAL := help
 
+MAKESTER__INCLUDES=py docker
 MAKESTER__REPO_NAME := loum
 MAKESTER__CONTAINER_NAME := jupyter-pyspark
-MAKESTER__INCLUDES=py docker
 
 include makester/makefiles/makester.mk
 
@@ -13,19 +13,24 @@ include makester/makefiles/makester.mk
 export SPARK_VERSION := 3.5.1
 export JUPYTER_VERSION := 7.1.2
 
-# Tagging convention used: <jupyter-version>-<spark-version>-<image-release-number>
+# Conatiner image build.
+#
+# Image versioning follows the format: <jupyter-version>-<spark-version>-<image-release-number>
+#
 MAKESTER__VERSION := $(JUPYTER_VERSION)-$(SPARK_VERSION)
-MAKESTER__RELEASE_NUMBER := 1
+MAKESTER__RELEASE_NUMBER := 2
 
+MAKESTER__IMAGE_TARGET_TAG := $(MAKESTER__VERSION)-$(MAKESTER__RELEASE_NUMBER)
+MAKESTER__IMAGE_TAG_ALIAS := $(MAKESTER__SERVICE_NAME):$(MAKESTER__IMAGE_TARGET_TAG)
 SPARK_BASE_IMAGE := loum/pyjdk:python3.11-openjdk11
-
 JUPYTER_PORT ?= 8889
 MAKESTER__BUILD_COMMAND := --rm --no-cache\
  --build-arg SPARK_BASE_IMAGE=$(SPARK_BASE_IMAGE)\
  --build-arg SPARK_VERSION=$(SPARK_VERSION)\
  --build-arg JUPYTER_VERSION=$(JUPYTER_VERSION)\
  --build-arg JUPYTER_PORT=$(JUPYTER_PORT)\
- --tag $(MAKESTER__IMAGE_TAG_ALIAS) .
+ --tag $(MAKESTER__IMAGE_TAG_ALIAS)\
+ --tag $(MAKESTER__SERVICE_NAME):latest .
 
 DRIVER_MEMORY ?= 2g
 MAKESTER__RUN_COMMAND := $(MAKESTER__DOCKER) run\
@@ -37,7 +42,12 @@ MAKESTER__RUN_COMMAND := $(MAKESTER__DOCKER) run\
  --volume $(PWD)/notebooks:/home/user/notebooks\
  --publish 18080:18080\
  --publish $(JUPYTER_PORT):$(JUPYTER_PORT)\
- $(MAKESTER__SERVICE_NAME):$(HASH)
+ $(MAKESTER__SERVICE_NAME):latest
+
+_image-rm:
+	$(MAKESTER__DOCKER) rmi $(MAKESTER__SERVICE_NAME):latest
+
+image-rm: _image-rm
 
 #
 # Local Makefile targets.
