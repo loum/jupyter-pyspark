@@ -1,25 +1,24 @@
 # Jupyter Notebook (with PyPI Apache Spark)
 - [Overview](#overview)
-- [Quick Links](#quick-links)
-- [Quick Start](#quick-start)
+- [Quick links](#quick-links)
+- [Quick start](#quick-start)
 - [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Getting Help](#getting-help)
-- [Docker Image Management](#docker-image-management)
-  - [Image Build](#image-build)
-  - [Image Searches](#image-searches)
-  - [Image Tagging](#image-tagging)
+- [Getting started](#getting-started)
+- [Getting help](#getting-help)
+- [Docker container image management](#docker-container-image-management)
+  - [Image build and tagging](#image-build-and-tagging)
+  - [Image searches](#image-searches)
 - [Interact with Jupyter as Docker Container](#interact-with-jupyter-as-docker-container)
 
 ## Overview
 
 [The Jupyter Notebook](https://jupyter-notebook.readthedocs.io/en/stable/) on Docker with its own Apache Spark compute engine.
 
-## Quick Links
+## Quick links
 
 - [The Jupyter Notebook](https://jupyter-notebook.readthedocs.io/en/stable/)
 
-## Quick Start
+## Quick start
 
 Impatient and just want Jupyter with Apache Spark quickly?  Place your notebooks under the `notebook` directory and optionally set your Python dependencies in your `requirements.txt` file. Then run:
 
@@ -45,7 +44,7 @@ docker exec -ti jupyter-pyspark bash -c "jupyter notebook list"
 - [Docker](https://docs.docker.com/install/)
 - [GNU make](https://www.gnu.org/software/make/manual/make.html)
 
-## Getting Started
+## Getting started
 
 Get the code and change into the top level `git` project directory:
 
@@ -73,7 +72,7 @@ Setup the environment:
 make init
 ```
 
-## Getting Help
+## Getting help
 
 There should be a `make` target to get most things done. Check the help for more information:
 
@@ -81,13 +80,19 @@ There should be a `make` target to get most things done. Check the help for more
 make help
 ```
 
-### Image Build
+## Docker container image management
+
+### Image build and tagging
 
 ```
-make image-build
+make image-buildx
 ```
 
-### Image Searches
+Container image build tagging convention used is:
+- `<jupyter-version>-<spark-version>-<image-release-number>`
+- `latest`
+
+### Image searches
 
 Search for existing Docker image tags with command:
 
@@ -95,20 +100,8 @@ Search for existing Docker image tags with command:
 make image-search
 ```
 
-### Image Tagging
-By default, `makester` will tag the new Docker image with the current branch hash. This provides a degree of uniqueness but is not very intuitive. That's where the `tag-version` `Makefile` target can help. To apply tag as per project tagging convention `<jupyter-version>-<spark-version>-<image-release-number>`:
 
-```
-make image-tag-version
-```
-
-To tag the image as `latest`:
-
-```
-make image-tag-latest
-```
-
-## Interact with Jupyter as Docker Container
+## Interact with Jupyter as Docker container
 
 To start the container and wait for the Jupyter Notebook service to initiate:
 
