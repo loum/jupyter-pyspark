@@ -11,7 +11,7 @@ include makester/makefiles/makester.mk
 # Makester overrides.
 #
 export SPARK_VERSION := 3.5.1
-export JUPYTER_VERSION := 7.1.2
+export JUPYTER_VERSION := 7.1.3
 
 # Conatiner image build.
 #
