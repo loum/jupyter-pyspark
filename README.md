@@ -1,10 +1,11 @@
 # Jupyter Notebook (with PyPI Apache Spark)
+
 - [Overview](#overview)
 - [Quick links](#quick-links)
 - [Quick start](#quick-start)
 - [Prerequisites](#prerequisites)
 - [Getting started](#getting-started)
-- [Getting help](#getting-help)
+- [Help](#help)
 - [Docker container image management](#docker-container-image-management)
   - [Image build and tagging](#image-build-and-tagging)
   - [Image searches](#image-searches)
@@ -20,7 +21,7 @@
 
 ## Quick start
 
-Impatient and just want Jupyter with Apache Spark quickly?  Place your notebooks under the `notebook` directory and optionally set your Python dependencies in your `requirements.txt` file. Then run:
+Impatient and just want Jupyter with Apache Spark quickly? Place your notebooks under the `notebook` directory and optionally set your Python dependencies in your `requirements.txt` file. Then run:
 
 ```
 docker run --rm -d\
@@ -43,8 +44,11 @@ docker exec -ti jupyter-pyspark bash -c "jupyter notebook list"
 
 - [Docker](https://docs.docker.com/install/)
 - [GNU make](https://www.gnu.org/software/make/manual/make.html)
+- [Makester project](https://github.com/loum/makester.git)
 
 ## Getting started
+
+[Makester](https://loum.github.io/makester/) is used as the Integrated Developer Platform.
 
 Get the code and change into the top level `git` project directory:
 
@@ -52,27 +56,11 @@ Get the code and change into the top level `git` project directory:
 git clone https://github.com/loum/jupyter-pyspark.git && cd jupyter-pyspark
 ```
 
-> **_NOTE:_** Run all commands from the top-level directory of the `git` repository.
+> \[!NOTE
+>
+> Run all commands from the top-level directory of the `git` repository.
 
-For first-time setup, get the [Makester project](https://github.com/loum/makester.git):
-
-```
-git submodule update --init
-```
-
-Keep [Makester project](https://github.com/loum/makester.git) up-to-date with:
-
-```
-make submodule-update
-```
-
-Setup the environment:
-
-```
-make init
-```
-
-## Getting help
+## Help
 
 There should be a `make` target to get most things done. Check the help for more information:
 
@@ -89,6 +77,7 @@ make image-buildx
 ```
 
 Container image build tagging convention used is:
+
 - `<jupyter-version>-<spark-version>-<image-release-number>`
 - `latest`
 
@@ -99,7 +88,6 @@ Search for existing Docker image tags with command:
 ```
 make image-search
 ```
-
 
 ## Interact with Jupyter as Docker container
 
@@ -124,5 +112,6 @@ To stop:
 make container-stop
 ```
 
----
+______________________________________________________________________
+
 [top](#jupyter-notebook-with-pypi-apache-spark)
